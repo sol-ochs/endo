@@ -21,7 +21,7 @@ aws configure
 ### Step 2: Deploy Infrastructure with Terraform
 
 ```bash
-# Navigate to terraform directory
+# Navigate to Terraform directory
 cd terraform
 
 # Initialize Terraform
@@ -40,7 +40,7 @@ terraform apply
 # Return to project root
 cd ..
 
-# Generate environment configuration from Terraform outputs
+# Generate environment files from Terraform outputs
 ./scripts/setup-env.sh dev
 ```
 
