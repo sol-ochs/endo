@@ -129,6 +129,8 @@ temp/
 *.tfstate.*
 .terraform/
 .terraform.lock.hcl
+*.tfvars
+!*.tfvars.example
 
 # Local Netlify folder
 .netlify

@@ -11,8 +11,9 @@
 **1. Deploy infrastructure**
 ```bash
 cd terraform
-terraform init
-terraform apply
+cp dev.tfvars.example dev.tfvars  # First time only
+terraform init # First time only
+terraform apply -var-file="dev.tfvars"
 ```
 
 **2. Generate environment files**
@@ -43,5 +44,5 @@ Open `http://localhost:3000`
 
 ```bash
 cd terraform
-terraform destroy
+terraform destroy -var-file="dev.tfvars"
 ```
