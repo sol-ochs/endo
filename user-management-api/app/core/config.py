@@ -14,10 +14,10 @@ class Settings:
     USERS_TABLE: str = os.getenv("USERS_TABLE", "endo-users-dev")
 
     # CORS configuration
-    ALLOWED_ORIGINS: List[str] = [
-        "http://localhost:3000",  # React dev server
-        # TODO: Add production origins
-    ]
+    ALLOWED_ORIGINS: List[str] = os.getenv(
+        "ALLOWED_ORIGINS",
+        "http://localhost:3000"
+    ).split(",")
 
     # Environment
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "dev")

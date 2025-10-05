@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Script to set up environment configuration from Terraform outputs
-# Usage: ./scripts/setup-env.sh [dev|prod]
+# Usage: ./scripts/setup-env.sh [local|dev|prod]
 
 set -e
 
@@ -34,6 +34,7 @@ DOMAIN_URL=$(terraform output -raw cognito_domain_url)
 USERS_TABLE=$(terraform output -raw dynamodb_users_table_name)
 SESSIONS_TABLE=$(terraform output -raw dynamodb_sessions_table_name)
 AWS_REGION=$(terraform output -raw aws_region)
+API_GATEWAY_URL=$(terraform output -raw api_gateway_url)
 
 cd ..
 
@@ -70,7 +71,7 @@ API_PORT=8000
 API_HOST=0.0.0.0
 
 # Frontend Configuration
-REACT_APP_API_URL=$([ "$ENVIRONMENT" = "prod" ] && echo "https://your-production-api-url.com" || echo "http://localhost:8000")
+REACT_APP_API_URL=$([ "$ENVIRONMENT" = "local" ] && echo "http://localhost:8000" || echo "$API_GATEWAY_URL")
 REACT_APP_COGNITO_REGION=$AWS_REGION
 REACT_APP_COGNITO_USER_POOL_ID=$USER_POOL_ID
 REACT_APP_COGNITO_CLIENT_ID=$CLIENT_ID
@@ -90,7 +91,7 @@ cat > "$FRONTEND_ENV_FILE" << EOF
 # Generated automatically from Terraform outputs on $(date '+%Y-%m-%d')
 
 # API Configuration
-REACT_APP_API_URL=$([ "$ENVIRONMENT" = "prod" ] && echo "https://your-production-api-url.com" || echo "http://localhost:8000")
+REACT_APP_API_URL=$([ "$ENVIRONMENT" = "local" ] && echo "http://localhost:8000" || echo "$API_GATEWAY_URL")
 
 # Cognito Configuration
 REACT_APP_COGNITO_REGION=$AWS_REGION

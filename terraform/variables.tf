@@ -32,3 +32,9 @@ variable "cognito_logout_urls" {
     "http://localhost:3000/login"
   ]
 }
+
+variable "lambda_zip_path" {
+  description = "Path to the Lambda deployment package"
+  type        = string
+  default     = "../lambda-package.zip"
+}

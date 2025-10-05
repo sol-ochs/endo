@@ -1,114 +1,241 @@
 # Deployment Guide
 
-This guide will walk you through deploying the Endo application for development using AWS free tier resources.
+**Skip to:**
+- [Local Development](#local-development) for daily feature work (local code + dev cloud resources)
+- [Dev Deployment](#dev-deployment) for testing serverless in dev environment
+- [Prod Deployment](#prod-deployment) for production release
+- [Initial Setup](#initial-setup) if this is your first time
 
-## Prerequisites
+---
+
+## Local Development
+
+*Fast iteration with local backend + dev cloud database*
+
+**Prerequisites:** Complete [Initial Setup](#initial-setup) for dev environment first.
+
+### Setup Environment
+
+```bash
+# Generate environment files
+./scripts/setup-env.sh local
+```
+
+### Run Backend
+
+```bash
+cd user-management-api
+
+# Create virtual environment (first time only)
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install dependencies (first time only)
+pip install -r requirements.txt
+
+# Run the API server
+uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --env-file ../.env.local
+```
+
+### Run Frontend
+
+```bash
+# In a new terminal
+cd ui
+
+# Install dependencies (first time only)
+npm install
+
+# Run the development server
+npm start
+```
+
+The UI should be available at `http://localhost:3000`.
+
+---
+
+## Dev Deployment
+
+*Test your serverless deployment in a dev environment*
+
+**Prerequisites:** Complete [Initial Setup](#initial-setup) for dev environment first.
+
+### Package and Deploy Lambda
+
+```bash
+# Package the backend
+./scripts/package-lambda.sh
+
+# Deploy Lambda function
+cd terraform
+terraform apply
+cd ..
+```
+
+### Setup Environment
+
+```bash
+# Generate environment files for dev cloud backend
+./scripts/setup-env.sh dev
+```
+
+### Run Frontend
+
+```bash
+cd ui
+
+# Install dependencies (first time only)
+npm install
+
+# Run the development server (connects to API Gateway in dev)
+npm start
+```
+
+Open `http://localhost:3000` in your browser.
+
+---
+
+## Prod Deployment
+
+*Deploy to production environment*
+
+**Prerequisites:** Complete [Initial Setup](#initial-setup) for prod environment first.
+
+### Package and Deploy Lambda
+
+```bash
+# Package the backend
+./scripts/package-lambda.sh
+
+# Deploy to production
+cd terraform
+terraform workspace select prod  # or use -var="environment=prod"
+terraform apply
+cd ..
+```
+
+### Setup Environment
+
+```bash
+# Generate environment files for production
+./scripts/setup-env.sh prod
+```
+
+### Deploy Frontend
+
+See [Frontend Deployment](#frontend-deployment) section below for S3/CloudFront setup.
+
+---
+
+## Initial Setup
+
+*Required AWS infrastructure setup (one-time per environment)*
+
+### Prerequisites
 
 1. **AWS Account** with appropriate permissions
 2. **AWS CLI** configured with your credentials
 3. **Terraform** installed (>= 1.0)
-4. **Node.js** and **Python 3.9+** for local development
+4. **Node.js** and **Python 3.9+**
 
-## Deployment Steps
-
-### Step 1: Configure AWS Credentials
+### Configure AWS
 
 ```bash
 aws configure
-# Follow prompts to set your Access Key, Secret Key, region, and output format
+# Enter your Access Key, Secret Key, region, and output format
 ```
 
-### Step 2: Deploy Infrastructure with Terraform
+### Deploy Dev Infrastructure
 
 ```bash
-# Navigate to Terraform directory
 cd terraform
 
 # Initialize Terraform
 terraform init
 
-# Review the plan
+# Review the plan (defaults to dev environment)
 terraform plan
 
-# Deploy infrastructure
+# Deploy dev infrastructure (Cognito, DynamoDB, Lambda, API Gateway)
 terraform apply
 ```
 
-### Step 3: Set Up Environment Configuration
+After this completes, continue to [Local Development](#local-development) or [Dev Deployment](#dev-deployment).
+
+### Deploy Prod Infrastructure (when ready)
 
 ```bash
-# Return to project root
-cd ..
+cd terraform
 
-# Generate environment files from Terraform outputs
+# Deploy prod infrastructure
+terraform workspace new prod  # or use -var="environment=prod"
+terraform plan
+terraform apply
+```
+
+---
+
+## Frontend Deployment
+
+*Deploy React app to S3/CloudFront (coming soon)*
+
+This section will contain instructions for deploying the frontend to S3 with CloudFront CDN.
+
+---
+
+## Useful Commands
+
+**Switch between development modes:**
+```bash
+# Local development (local code + dev cloud)
+./scripts/setup-env.sh local
+
+# Dev cloud deployment
 ./scripts/setup-env.sh dev
+
+# Prod cloud deployment
+./scripts/setup-env.sh prod
 ```
 
-### Step 4: Setup Backend (Python API)
-
+**Check Terraform outputs:**
 ```bash
-cd user-management-api
-
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the API server
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --env-file ../.env.dev
+cd terraform && terraform output
 ```
 
-### Step 5: Setup Frontend (React)
-
-Open a new terminal and run:
-
+**AWS resource commands:**
 ```bash
-cd ui
+# List DynamoDB tables
+aws dynamodb list-tables
 
-# Install dependencies
-npm install
-
-# Run the React development server (automatically loads ui/.env)
-npm start
+# List Cognito User Pools
+aws cognito-idp list-user-pools --max-results 10
 ```
 
-## Step 6: Test the Application
-
-Open your browser and navigate to `http://localhost:3000`. You should see the Endo application running.
+---
 
 ## Cost Monitoring
 
 Monitor your AWS usage to stay within free tier limits:
 
-1. **Cognito**: Free for up to 50,000 MAUs
-2. **DynamoDB**: 25GB storage + 200M requests/month free
-3. **Lambda**: 1M requests + 400K GB-seconds/month free
+- **Cognito**: Free for up to 50,000 MAUs
+- **DynamoDB**: 25GB storage + 200M requests/month free
+- **Lambda**: 1M requests + 400K GB-seconds/month free
+- **API Gateway**: 1M requests/month free
 
-### Useful Commands
-
-Check Terraform outputs:
-```bash
-cd terraform && terraform output
-```
-
-List DynamoDB tables:
-```bash
-aws dynamodb list-tables
-```
-
-List Cognito User Pools:
-```bash
-aws cognito-idp list-user-pools --max-results 10
-```
+---
 
 ## Cleanup
 
-To destroy all AWS resources:
+To destroy all AWS resources in an environment:
 
 ```bash
 cd terraform
+
+# Destroy dev environment
+terraform destroy
+
+# Destroy prod environment
+terraform workspace select prod
 terraform destroy
 ```
 
