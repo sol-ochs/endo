@@ -16,6 +16,6 @@ The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims
 - **`data-processing/`** - Analytics engine for generating insights and recommendations
 - **`email-service/`** - Scheduled email reports
 
-## Quick Start
+## Deployment
 
-For detailed step-by-step instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
+For detailed instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
