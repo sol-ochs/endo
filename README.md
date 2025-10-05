@@ -1,8 +1,8 @@
 # Endo
 
-A type 1 diabetes assistant providing daily support and management tools.
+A proactive type 1 diabetes assistant.
 
-The average type 1 diabetic sees their endocrinologist only 1-2 times a year. Endo aims to fill this gap by providing continuous glucose monitoring insights, trend analysis, and personalized recommendations between doctor visits.
+The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims to fill that void with periodic "nudges," using your recent glucose data to generate timely insights and actionable recommendations between doctor visits.
 
 ## Architecture
 
