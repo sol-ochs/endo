@@ -5,6 +5,7 @@ httpx
 pydantic[email]
 python-jose[cryptography]
 python-multipart
+mangum
 uvicorn[standard]
 pyjwt[crypto]
 requests
