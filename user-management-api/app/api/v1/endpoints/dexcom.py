@@ -109,9 +109,8 @@ async def dexcom_callback(
 
             logger.info(f"Successfully connected Dexcom account for user {user_id}")
 
-            # Redirect to frontend success page
-            # TODO: Update this URL to match your frontend
-            return RedirectResponse(url=f"http://localhost:3000/settings?dexcom=connected")
+            # Redirect to frontend account page with success message
+            return RedirectResponse(url=f"http://localhost:3000/account?dexcom=connected")
 
     except httpx.HTTPError as e:
         logger.error(f"HTTP error during Dexcom OAuth: {e}")
