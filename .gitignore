@@ -137,6 +137,7 @@ temp/
 
 # AWS
 .aws-sam/
+lambda-package/
 
 # Build outputs
 build/

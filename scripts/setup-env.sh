@@ -34,6 +34,7 @@ DOMAIN_URL=$(terraform output -raw cognito_domain_url)
 USERS_TABLE=$(terraform output -raw dynamodb_users_table_name)
 SESSIONS_TABLE=$(terraform output -raw dynamodb_sessions_table_name)
 AWS_REGION=$(terraform output -raw aws_region)
+API_URL=$(terraform output -raw api_url)
 
 cd ..
 
@@ -66,11 +67,10 @@ USERS_TABLE=$USERS_TABLE
 SESSIONS_TABLE=$SESSIONS_TABLE
 
 # API Configuration
-API_PORT=8000
-API_HOST=0.0.0.0
+API_URL=$API_URL
 
 # Frontend Configuration
-REACT_APP_API_URL=$([ "$ENVIRONMENT" = "prod" ] && echo "https://your-production-api-url.com" || echo "http://localhost:8000")
+REACT_APP_API_URL=$API_URL
 REACT_APP_COGNITO_REGION=$AWS_REGION
 REACT_APP_COGNITO_USER_POOL_ID=$USER_POOL_ID
 REACT_APP_COGNITO_CLIENT_ID=$CLIENT_ID
@@ -90,7 +90,7 @@ cat > "$FRONTEND_ENV_FILE" << EOF
 # Generated automatically from Terraform outputs on $(date '+%Y-%m-%d')
 
 # API Configuration
-REACT_APP_API_URL=$([ "$ENVIRONMENT" = "prod" ] && echo "https://your-production-api-url.com" || echo "http://localhost:8000")
+REACT_APP_API_URL=$API_URL
 
 # Cognito Configuration
 REACT_APP_COGNITO_REGION=$AWS_REGION
@@ -98,16 +98,11 @@ REACT_APP_COGNITO_USER_POOL_ID=$USER_POOL_ID
 REACT_APP_COGNITO_CLIENT_ID=$CLIENT_ID
 EOF
 
-echo "✅ Frontend environment file created: $FRONTEND_ENV_FILE"
+echo "Frontend environment file created: $FRONTEND_ENV_FILE"
 echo ""
 echo "Next steps:"
-echo "1. Review and customize environment files if needed"
-echo "2. Set AWS credentials if not already configured"
-echo "3. Run your applications:"
-echo "   - Backend: uvicorn app.main:app --env-file $ENV_FILE"
-echo "   - Frontend: npm start (will automatically load $FRONTEND_ENV_FILE)"
+echo "1. Start frontend: cd ui && npm start"
+echo "2. Frontend will connect to deployed Lambda backend at: $API_URL"
 echo ""
-echo "For AWS credentials, you can either:"
-echo "- Use AWS CLI: aws configure"
-echo "- Set environment variables: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY"
-echo "- Use IAM roles (recommended for production)"
+echo "To run backend locally instead:"
+echo "  cd user-management-api && uvicorn app.main:app --env-file ../$ENV_FILE"

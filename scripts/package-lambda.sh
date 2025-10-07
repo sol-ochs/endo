@@ -3,36 +3,43 @@ set -e
 
 echo "Packaging Lambda function..."
 
-# Navigate to the API directory
-cd "$(dirname "$0")/../user-management-api"
-
-# Create lambda-package directory if it doesn't exist
-mkdir -p lambda-package
-
-# Create a temporary directory for the package
+# Ensure cleanup on script exit (even if an error occurs)
 TEMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TEMP_DIR"' EXIT
 echo "Using temporary directory: $TEMP_DIR"
+
+# Navigate to API directory
+API_DIR="$(dirname "$0")/../user-management-api"
+cd "$API_DIR"
 
 # Install dependencies to temp directory
 echo "Installing dependencies..."
-pip install -r requirements.txt -t "$TEMP_DIR" --platform manylinux2014_x86_64 --only-binary=:all:
+source .venv/bin/activate
+pip install \
+-r requirements.txt \
+-t "$TEMP_DIR" \
+--platform manylinux2014_x86_64 \
+--python-version 3.11 \
+--only-binary=:all:
+deactivate
 
-# Copy application code
+# Copy application code to temp directory
 echo "Copying application code..."
 cp -r app "$TEMP_DIR/"
 cp lambda_function.py "$TEMP_DIR/"
 
 # Create deployment package
 echo "Creating deployment.zip..."
-cd "$TEMP_DIR"
-zip -r deployment.zip . -x "*.pyc" -x "*__pycache__*" -x "*.dist-info*"
+pushd "$TEMP_DIR"
+zip -r deployment.zip . -x "*.pyc" -x "*__pycache__*"
+popd
 
-# Move to lambda-package directory
-mv deployment.zip "$(dirname "$0")/../user-management-api/lambda-package/"
+# Create package directory if not exists
+PACKAGE_DIR="$(pwd)/lambda-package"
+mkdir -p "$PACKAGE_DIR"
 
-# Cleanup
-cd -
-rm -rf "$TEMP_DIR"
+# Transfer the completed zip file
+mv "$TEMP_DIR/deployment.zip" "$PACKAGE_DIR/"
 
-echo "✓ Lambda package created: lambda-package/deployment.zip"
-echo "Size: $(du -h lambda-package/deployment.zip | cut -f1)"
+echo "Lambda package created: $PACKAGE_DIR/deployment.zip"
+echo "Size: $(du -h "$PACKAGE_DIR/deployment.zip" | cut -f1)"
