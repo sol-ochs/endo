@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from app.api.v1.endpoints import auth, users
+from app.api.v1.endpoints import auth, users, dexcom
 from app.core.config import settings
 
 
@@ -32,6 +32,7 @@ async def health_check():
 
 app.include_router(auth.router, prefix="/v1/auth", tags=["authentication"])
 app.include_router(users.router, prefix="/v1/users", tags=["users"])
+app.include_router(dexcom.router, prefix="/v1/dexcom", tags=["dexcom"])
 
 # Lambda handler
 handler = Mangum(app)
