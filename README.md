@@ -8,8 +8,8 @@ The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims
 
 ### Current Components
 - **`ui/`** - React 18 + TypeScript frontend with React Router, Axios, and Lucide icons
-- **`user-management-api/`** - FastAPI backend with AWS Cognito auth and DynamoDB storage (deployed on AWS Lambda for cost efficiency)
-- **`terraform/`** - AWS infrastructure (Cognito, DynamoDB) with dev/prod environments
+- **`user-management-api/`** - FastAPI backend with AWS Cognito auth and DynamoDB storage (deployed on AWS EC2)
+- **`terraform/`** - AWS infrastructure (EC2, Cognito, DynamoDB) with dev/prod environments
 
 ### Planned Components (v1)
 - **`data-ingestion/`** - Service to pull individual glucose data from Dexcom API

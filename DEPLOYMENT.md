@@ -1,44 +1,48 @@
 # Deployment Guide
 
+Full AWS deployment for dev and prod environments.
+
 ## Prerequisites
 
 - AWS Account with credentials configured (`aws configure`)
 - Terraform >= 1.0
-- Node.js and Python 3.9+
 
-## Quick Start
+## Deploy Infrastructure
 
-**1. Deploy infrastructure**
+**1. Initialize and apply Terraform**
 ```bash
 cd terraform
 cp dev.tfvars.example dev.tfvars  # First time only
-terraform init # First time only
+terraform init                    # First time only
 terraform apply -var-file="dev.tfvars"
 ```
 
-**2. Generate environment files**
+This deploys:
+- EC2 instance (t3.micro) running the FastAPI backend in Docker
+- Cognito user pool for authentication
+- DynamoDB tables for data storage
+
+**2. Get deployment outputs**
 ```bash
-cd ..
-./scripts/setup-env.sh dev
+terraform output
 ```
 
-**3. Start backend**
-```bash
-cd user-management-api
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --env-file ../.env.dev
-```
+Note the `api_url` - you'll need this for the frontend.
 
-**4. Start frontend** (new terminal)
-```bash
-cd ui
-npm install
-npm start
-```
+## Environments
 
-Open `http://localhost:3000`
+- **Dev**: `terraform apply -var-file="dev.tfvars"`
+- **Prod**: `terraform apply -var-file="prod.tfvars"` (create as needed)
+
+## Frontend Deployment
+
+WIP - See [ui/README.md](ui/README.md) for local development.
+
+## Local Development
+
+To develop components locally against deployed infrastructure:
+- **Backend**: See [user-management-api/README.md](user-management-api/README.md)
+- **Frontend**: See [ui/README.md](ui/README.md)
 
 ## Cleanup
 
