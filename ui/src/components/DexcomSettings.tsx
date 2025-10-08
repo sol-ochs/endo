@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
 import dexcomService from '../services/dexcom';
@@ -15,6 +15,19 @@ const DexcomSettings: React.FC<DexcomSettingsProps> = ({ onToast }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
 
+  const checkConnectionStatus = useCallback(async () => {
+    try {
+      const status = await dexcomService.getConnectionStatus();
+      setIsConnected(status.connected);
+      setExpiresAt(status.expires_at || null);
+    } catch (error) {
+      const err = error as ApiError;
+      console.error('Failed to check Dexcom status:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     const dexcomParam = searchParams.get('dexcom');
 
@@ -29,21 +42,8 @@ const DexcomSettings: React.FC<DexcomSettingsProps> = ({ onToast }) => {
     }
 
     // Check connection status
-    checkConnectionStatus();
-  }, []); // Only run on mount
-
-  const checkConnectionStatus = async () => {
-    try {
-      const status = await dexcomService.getConnectionStatus();
-      setIsConnected(status.connected);
-      setExpiresAt(status.expires_at || null);
-    } catch (error) {
-      const err = error as ApiError;
-      console.error('Failed to check Dexcom status:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    void checkConnectionStatus();
+  }, [checkConnectionStatus, searchParams, setSearchParams, onToast]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
