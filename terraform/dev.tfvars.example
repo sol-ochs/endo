@@ -10,3 +10,7 @@ cognito_callback_urls = [
 cognito_logout_urls = [
   "http://localhost:3000/login"
 ]
+
+dexcom_client_id = "your-dexcom-client-id"
+dexcom_client_secret = "your-dexcom-client-secret"
+dexcom_redirect_uri = "https://your-api-gateway-url/dev/v1/dexcom/callback"

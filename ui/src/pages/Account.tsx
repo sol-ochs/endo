@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as UserIcon, Info, LogOut, Menu, X } from 'lucide-react';
 import authService from '../services/auth';
@@ -28,10 +28,10 @@ const Account: React.FC = () => {
     }
   }, [navigate]);
 
-  const addToast = (message: string, type: 'success' | 'error') => {
+  const addToast = useCallback((message: string, type: 'success' | 'error') => {
     const id = Math.random().toString(36).substr(2, 9);
     setToasts(prev => [...prev, { id, message, type }]);
-  };
+  }, []);
 
   const removeToast = (id: string) => {
     setToasts(prev => prev.filter(toast => toast.id !== id));
