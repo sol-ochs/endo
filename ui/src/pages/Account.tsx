@@ -10,13 +10,14 @@ const Account: React.FC = () => {
   const [activeTab, setActiveTab] = useState('account');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, loading } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Only redirect after auth has finished loading
+    if (!loading && !isAuthenticated) {
       navigate('/login');
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, loading, navigate]);
 
   const handleLogout = async () => {
     await logout();
