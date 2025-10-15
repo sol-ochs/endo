@@ -21,8 +21,8 @@ const DexcomSettings: React.FC = () => {
       setLastSync(status.lastSync);
     } catch (error) {
       const err = error as ApiError;
-      // Silently handle 404 - backend endpoint not yet implemented
-      if (err.detail !== 'Not Found') {
+      // Silently handle 404 - user has no credentials yet
+      if (err.status !== 404) {
         console.error('Failed to check Dexcom status:', err);
       }
     } finally {

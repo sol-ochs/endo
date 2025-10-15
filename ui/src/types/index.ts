@@ -32,6 +32,7 @@ export interface DexcomCallbackResponse {
 export interface ApiError {
   detail?: string;
   message?: string;
+  status?: number;
 }
 
 export interface FormData {
