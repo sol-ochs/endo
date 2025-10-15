@@ -11,7 +11,8 @@ const getAuthHeaders = () => {
 const handleApiError = (error: unknown): never => {
   if (axios.isAxiosError(error)) {
     const axiosError = error as AxiosError<ApiError>;
-    throw axiosError.response?.data || { message: axiosError.message };
+    const errorData = axiosError.response?.data || { message: axiosError.message };
+    throw { ...errorData, status: axiosError.response?.status };
   }
   throw { message: 'An unexpected error occurred' };
 };
@@ -35,7 +36,10 @@ const dexcomService = {
         headers: getAuthHeaders()
       });
 
-      return response.data;
+      return {
+        connected: response.data.connected,
+        lastSync: response.data.expires_at
+      };
     } catch (error) {
       return handleApiError(error);
     }

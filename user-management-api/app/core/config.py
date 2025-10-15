@@ -20,6 +20,9 @@ class Settings:
     DEXCOM_REDIRECT_URI: str = os.getenv("DEXCOM_REDIRECT_URI", "")
     DEXCOM_API_BASE_URL: str = os.getenv("DEXCOM_API_BASE_URL", "https://sandbox-api.dexcom.com")
 
+    # Frontend configuration
+    FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")
+
     # CORS configuration
     ALLOWED_ORIGINS: List[str] = [
         "http://localhost:3000",  # React dev server
