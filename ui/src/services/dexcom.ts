@@ -20,7 +20,7 @@ const handleApiError = (error: unknown): never => {
 const dexcomService = {
   getAuthUrl: async (): Promise<string> => {
     try {
-      const response = await axios.get<{ authorization_url: string }>(`${API_BASE_URL}/dexcom/connect`, {
+      const response = await axios.get<DexcomAuthResponse>(`${API_BASE_URL}/v1/dexcom/connect`, {
         headers: getAuthHeaders()
       });
 
@@ -30,22 +30,9 @@ const dexcomService = {
     }
   },
 
-  handleCallback: async (code: string): Promise<DexcomCallbackResponse> => {
-    try {
-      const response = await axios.post<DexcomCallbackResponse>(`${API_BASE_URL}/dexcom/callback`,
-        { code },
-        { headers: getAuthHeaders() }
-      );
-
-      return response.data;
-    } catch (error) {
-      return handleApiError(error);
-    }
-  },
-
   getConnectionStatus: async (): Promise<DexcomStatus> => {
     try {
-      const response = await axios.get<{ connected: boolean; expires_at?: string }>(`${API_BASE_URL}/dexcom/status`, {
+      const response = await axios.get<DexcomStatus>(`${API_BASE_URL}/v1/dexcom/status`, {
         headers: getAuthHeaders()
       });
 
@@ -60,7 +47,7 @@ const dexcomService = {
 
   disconnectDexcom: async (): Promise<DexcomCallbackResponse> => {
     try {
-      const response = await axios.delete<DexcomCallbackResponse>(`${API_BASE_URL}/dexcom/disconnect`, {
+      const response = await axios.delete<DexcomCallbackResponse>(`${API_BASE_URL}/v1/dexcom/disconnect`, {
         headers: getAuthHeaders()
       });
 

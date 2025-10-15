@@ -24,13 +24,13 @@ variable "cognito_logout_urls" {
 }
 
 variable "dexcom_client_id" {
-  description = "Dexcom API client ID"
+  description = "Dexcom OAuth client ID"
   type        = string
   sensitive   = true
 }
 
 variable "dexcom_client_secret" {
-  description = "Dexcom API client secret"
+  description = "Dexcom OAuth client secret"
   type        = string
   sensitive   = true
 }

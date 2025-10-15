@@ -89,20 +89,21 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      ENVIRONMENT             = var.environment
-      AWS_REGION_NAME         = var.aws_region
-      COGNITO_REGION          = var.aws_region
-      COGNITO_USER_POOL_ID    = aws_cognito_user_pool.main.id
-      COGNITO_CLIENT_ID       = aws_cognito_user_pool_client.main.id
-      COGNITO_CLIENT_SECRET   = aws_cognito_user_pool_client.main.client_secret
-      COGNITO_DOMAIN_URL         = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${var.aws_region}.amazoncognito.com"
-      USERS_TABLE                = aws_dynamodb_table.users.name
-      SESSIONS_TABLE             = aws_dynamodb_table.sessions.name
-      DEXCOM_CREDENTIALS_TABLE   = aws_dynamodb_table.dexcom_credentials.name
-      DEXCOM_CLIENT_ID           = var.dexcom_client_id
-      DEXCOM_CLIENT_SECRET       = var.dexcom_client_secret
-      DEXCOM_REDIRECT_URI        = var.dexcom_redirect_uri
-      LOG_LEVEL                  = var.environment == "prod" ? "INFO" : "DEBUG"
+      ENVIRONMENT              = var.environment
+      AWS_REGION_NAME          = var.aws_region
+      COGNITO_REGION           = var.aws_region
+      COGNITO_USER_POOL_ID     = aws_cognito_user_pool.main.id
+      COGNITO_CLIENT_ID        = aws_cognito_user_pool_client.main.id
+      COGNITO_CLIENT_SECRET    = aws_cognito_user_pool_client.main.client_secret
+      COGNITO_DOMAIN_URL       = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${var.aws_region}.amazoncognito.com"
+      USERS_TABLE              = aws_dynamodb_table.users.name
+      SESSIONS_TABLE           = aws_dynamodb_table.sessions.name
+      DEXCOM_CREDENTIALS_TABLE = aws_dynamodb_table.dexcom_credentials.name
+      DEXCOM_CLIENT_ID         = var.dexcom_client_id
+      DEXCOM_CLIENT_SECRET     = var.dexcom_client_secret
+      DEXCOM_REDIRECT_URI      = var.dexcom_redirect_uri
+      DEXCOM_API_BASE_URL      = var.environment == "prod" ? "https://api.dexcom.com" : "https://sandbox-api.dexcom.com"
+      LOG_LEVEL                = var.environment == "prod" ? "INFO" : "DEBUG"
     }
   }
 

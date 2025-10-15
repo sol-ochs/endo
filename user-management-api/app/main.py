@@ -32,7 +32,7 @@ async def health_check():
 
 app.include_router(auth.router, prefix="/v1/auth", tags=["authentication"])
 app.include_router(users.router, prefix="/v1/users", tags=["users"])
-app.include_router(dexcom.router, prefix="/dexcom", tags=["dexcom"])
+app.include_router(dexcom.router, prefix="/v1/dexcom", tags=["dexcom"])
 
 # Lambda handler
 handler = Mangum(app)

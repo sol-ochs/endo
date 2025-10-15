@@ -1,6 +1,6 @@
 export interface DexcomStatus {
   connected: boolean;
-  lastSync?: string;
+  expires_at?: string | null;
 }
 
 export interface User {
@@ -22,7 +22,8 @@ export interface RegisterResponse {
 }
 
 export interface DexcomAuthResponse {
-  authUrl: string;
+  authorization_url: string;
+  state: string;
 }
 
 export interface DexcomCallbackResponse {

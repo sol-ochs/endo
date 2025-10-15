@@ -14,11 +14,11 @@ class Settings:
     USERS_TABLE: str = os.getenv("USERS_TABLE", "endo-users-dev")
     DEXCOM_CREDENTIALS_TABLE: str = os.getenv("DEXCOM_CREDENTIALS_TABLE", "endo-dexcom-credentials-dev")
 
-    # Dexcom API configuration
+    # Dexcom OAuth configuration
     DEXCOM_CLIENT_ID: str = os.getenv("DEXCOM_CLIENT_ID", "")
     DEXCOM_CLIENT_SECRET: str = os.getenv("DEXCOM_CLIENT_SECRET", "")
+    DEXCOM_REDIRECT_URI: str = os.getenv("DEXCOM_REDIRECT_URI", "")
     DEXCOM_API_BASE_URL: str = os.getenv("DEXCOM_API_BASE_URL", "https://sandbox-api.dexcom.com")
-    DEXCOM_REDIRECT_URI: str = os.getenv("DEXCOM_REDIRECT_URI", "http://localhost:3000/dexcom/callback")
 
     # Frontend configuration
     FRONTEND_BASE_URL: str = os.getenv("FRONTEND_BASE_URL", "http://localhost:3000")

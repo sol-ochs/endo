@@ -103,6 +103,7 @@ async def dexcom_callback(
             detail="Invalid or expired state parameter"
         )
 
+
     # Exchange authorization code for access token
     token_url = f"{settings.DEXCOM_API_BASE_URL}/v2/oauth2/token"
 

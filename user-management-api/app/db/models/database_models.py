@@ -26,3 +26,23 @@ class DBUser(BaseModel):
             "last_login": self.last_login.isoformat() if self.last_login else None,
             "cognito_user_sub": self.cognito_user_sub
         }
+
+
+class DBDexcomCredentials(BaseModel):
+    user_id: str
+    access_token: str
+    refresh_token: str
+    expires_at: datetime
+    created_at: datetime
+    updated_at: datetime
+
+    @model_serializer
+    def serialize(self):
+        return {
+            "user_id": self.user_id,
+            "access_token": self.access_token,
+            "refresh_token": self.refresh_token,
+            "expires_at": self.expires_at.isoformat(),
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat()
+        }
