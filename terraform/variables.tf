@@ -22,3 +22,20 @@ variable "cognito_logout_urls" {
   description = "List of logout URLs for Cognito"
   type        = list(string)
 }
+
+variable "dexcom_client_id" {
+  description = "Dexcom API client ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "dexcom_client_secret" {
+  description = "Dexcom API client secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "dexcom_redirect_uri" {
+  description = "Dexcom OAuth redirect URI"
+  type        = string
+}

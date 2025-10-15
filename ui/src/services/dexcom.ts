@@ -19,11 +19,11 @@ const handleApiError = (error: unknown): never => {
 const dexcomService = {
   getAuthUrl: async (): Promise<string> => {
     try {
-      const response = await axios.get<DexcomAuthResponse>(`${API_BASE_URL}/dexcom/auth-url`, {
+      const response = await axios.get<{ authorization_url: string }>(`${API_BASE_URL}/dexcom/connect`, {
         headers: getAuthHeaders()
       });
 
-      return response.data.authUrl;
+      return response.data.authorization_url;
     } catch (error) {
       return handleApiError(error);
     }
@@ -44,11 +44,14 @@ const dexcomService = {
 
   getConnectionStatus: async (): Promise<DexcomStatus> => {
     try {
-      const response = await axios.get<DexcomStatus>(`${API_BASE_URL}/dexcom/status`, {
+      const response = await axios.get<{ connected: boolean; expires_at?: string }>(`${API_BASE_URL}/dexcom/status`, {
         headers: getAuthHeaders()
       });
 
-      return response.data;
+      return {
+        connected: response.data.connected,
+        lastSync: response.data.expires_at
+      };
     } catch (error) {
       return handleApiError(error);
     }

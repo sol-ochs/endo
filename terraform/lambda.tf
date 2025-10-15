@@ -48,6 +48,7 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
         Resource = [
           aws_dynamodb_table.users.arn,
           aws_dynamodb_table.sessions.arn,
+          aws_dynamodb_table.dexcom_credentials.arn,
           "${aws_dynamodb_table.users.arn}/index/*",
           "${aws_dynamodb_table.sessions.arn}/index/*"
         ]
@@ -94,10 +95,14 @@ resource "aws_lambda_function" "api" {
       COGNITO_USER_POOL_ID    = aws_cognito_user_pool.main.id
       COGNITO_CLIENT_ID       = aws_cognito_user_pool_client.main.id
       COGNITO_CLIENT_SECRET   = aws_cognito_user_pool_client.main.client_secret
-      COGNITO_DOMAIN_URL      = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${var.aws_region}.amazoncognito.com"
-      USERS_TABLE            = aws_dynamodb_table.users.name
-      SESSIONS_TABLE         = aws_dynamodb_table.sessions.name
-      LOG_LEVEL              = var.environment == "prod" ? "INFO" : "DEBUG"
+      COGNITO_DOMAIN_URL         = "https://${aws_cognito_user_pool_domain.main.domain}.auth.${var.aws_region}.amazoncognito.com"
+      USERS_TABLE                = aws_dynamodb_table.users.name
+      SESSIONS_TABLE             = aws_dynamodb_table.sessions.name
+      DEXCOM_CREDENTIALS_TABLE   = aws_dynamodb_table.dexcom_credentials.name
+      DEXCOM_CLIENT_ID           = var.dexcom_client_id
+      DEXCOM_CLIENT_SECRET       = var.dexcom_client_secret
+      DEXCOM_REDIRECT_URI        = var.dexcom_redirect_uri
+      LOG_LEVEL                  = var.environment == "prod" ? "INFO" : "DEBUG"
     }
   }
 

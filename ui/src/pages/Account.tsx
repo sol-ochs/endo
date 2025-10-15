@@ -1,49 +1,26 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User as UserIcon, Info, LogOut, Menu, X } from 'lucide-react';
-import authService from '../services/auth';
-import { User, ApiError } from '../types';
-import Toast from '../components/Toast';
+import { useAuth } from '../contexts/AuthContext';
 import ProfileSection from '../components/ProfileSection';
 import SecuritySettings from '../components/SecuritySettings';
 import DexcomSettings from '../components/DexcomSettings';
 
 const Account: React.FC = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [toasts, setToasts] = useState<Array<{id: string, message: string, type: 'success' | 'error'}>>([]);
   const [activeTab, setActiveTab] = useState('account');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-
-    if (currentUser) {
-      setUser(currentUser);
-      setLoading(false);
-    } else {
+    if (!isAuthenticated) {
       navigate('/login');
-      return;
     }
-  }, [navigate]);
-
-  const addToast = (message: string, type: 'success' | 'error') => {
-    const id = Math.random().toString(36).substr(2, 9);
-    setToasts(prev => [...prev, { id, message, type }]);
-  };
-
-  const removeToast = (id: string) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  };
+  }, [isAuthenticated, navigate]);
 
   const handleLogout = async () => {
-    await authService.logout();
+    await logout();
     navigate('/login');
-  };
-
-  const handleUserUpdate = (updatedUser: User) => {
-    setUser(updatedUser);
   };
 
   const tabs = [
@@ -57,13 +34,9 @@ const Account: React.FC = () => {
         if (!user) return null;
         return (
           <div className="space-y-6">
-            <ProfileSection
-              user={user}
-              onUserUpdate={handleUserUpdate}
-              onToast={addToast}
-            />
-            <SecuritySettings onToast={addToast} />
-            <DexcomSettings onToast={addToast} />
+            <ProfileSection />
+            <SecuritySettings />
+            <DexcomSettings />
           </div>
         );
       case 'about':
@@ -89,15 +62,8 @@ const Account: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="loading">
-        <div className="loading-content">
-          <div className="loading-spinner">⟳</div>
-          <span>Loading...</span>
-        </div>
-      </div>
-    );
+  if (!user) {
+    return null;
   }
 
   return (
@@ -164,18 +130,6 @@ const Account: React.FC = () => {
             {renderContent()}
           </div>
         </main>
-      </div>
-
-      {/* Toast Container */}
-      <div className="toast-container">
-        {toasts.map(toast => (
-          <Toast
-            key={toast.id}
-            message={toast.message}
-            type={toast.type}
-            onClose={() => removeToast(toast.id)}
-          />
-        ))}
       </div>
     </div>
   );

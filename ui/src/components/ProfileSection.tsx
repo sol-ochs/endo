@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import authService from '../services/auth';
-import { User, ApiError } from '../types';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
+import { ApiError } from '../types';
 import DisplayField from './DisplayField';
 import EditableField from './EditableField';
-
-interface ProfileSectionProps {
-  user: User;
-  onUserUpdate: (user: User) => void;
-  onToast: (message: string, type: 'success' | 'error') => void;
-}
 
 interface ProfileForm {
   first_name: string;
@@ -16,7 +12,9 @@ interface ProfileForm {
   email: string;
 }
 
-const ProfileSection: React.FC<ProfileSectionProps> = ({ user, onUserUpdate, onToast }) => {
+const ProfileSection: React.FC = () => {
+  const { user, updateUser } = useAuth();
+  const { addToast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [profileForm, setProfileForm] = useState<ProfileForm>({
     first_name: '',
@@ -25,12 +23,18 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user, onUserUpdate, onT
   });
 
   useEffect(() => {
-    setProfileForm({
-      first_name: user.first_name,
-      last_name: user.last_name,
-      email: user.email
-    });
+    if (user) {
+      setProfileForm({
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email
+      });
+    }
   }, [user]);
+
+  if (!user) {
+    return null;
+  }
 
   const handleFieldChange = (name: string, value: string) => {
     setProfileForm(prev => ({ ...prev, [name]: value }));
@@ -62,13 +66,13 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ user, onUserUpdate, onT
         changes.email = profileForm.email;
       }
 
-      const updatedUser = await authService.updateProfile(changes);
-      onUserUpdate(updatedUser);
+      const updatedUserData = await authService.updateProfile(changes);
+      updateUser(updatedUserData);
       setIsEditing(false);
-      onToast('Profile updated successfully!', 'success');
+      addToast('Profile updated successfully!', 'success');
     } catch (err) {
       const error = err as ApiError;
-      onToast(error.message || 'Failed to update profile. Please try again.', 'error');
+      addToast(error.message || 'Failed to update profile. Please try again.', 'error');
     }
   };
 

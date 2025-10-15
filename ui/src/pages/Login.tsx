@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import authService from '../services/auth';
+import { useAuth } from '../contexts/AuthContext';
+import { useToast } from '../contexts/ToastContext';
 import EmailConfirmation from '../components/EmailConfirmation';
 import { FormData, ApiError } from '../types';
 
@@ -21,12 +22,14 @@ const Login: React.FC = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
   const navigate = useNavigate();
+  const { login: authLogin, register: authRegister, isAuthenticated } = useAuth();
+  const { addToast } = useToast();
 
   useEffect(() => {
-    if (authService.isAuthenticated()) {
+    if (isAuthenticated) {
       navigate('/account');
     }
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -48,10 +51,10 @@ const Login: React.FC = () => {
 
     try {
       if (isLogin) {
-        await authService.login(formData.email, formData.password);
+        await authLogin(formData.email, formData.password);
         navigate('/account');
       } else {
-        await authService.register(
+        await authRegister(
           formData.email,
           formData.password,
           formData.first_name,
