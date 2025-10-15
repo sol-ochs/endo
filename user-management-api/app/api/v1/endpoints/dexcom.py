@@ -15,8 +15,48 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
-# In-memory state storage for OAuth (in production, use Redis or DynamoDB)
-oauth_states = {}
+
+def _store_oauth_state(state: str, user_id: str) -> None:
+    """Store OAuth state in DynamoDB with 10-minute TTL for CSRF protection."""
+    import boto3
+    from datetime import datetime, timezone, timedelta
+    from app.core.config import settings
+
+    dynamodb = boto3.resource('dynamodb', region_name=settings.AWS_REGION)
+    table = dynamodb.Table(settings.SESSIONS_TABLE)
+
+    expires_at = int((datetime.now(timezone.utc) + timedelta(minutes=10)).timestamp())
+
+    table.put_item(
+        Item={
+            'session_id': f"oauth_state:{state}",
+            'user_id': user_id,
+            'expires_at': expires_at
+        }
+    )
+
+
+def _get_and_delete_oauth_state(state: str) -> str | None:
+    """Retrieve and delete OAuth state from DynamoDB."""
+    import boto3
+    from app.core.config import settings
+
+    dynamodb = boto3.resource('dynamodb', region_name=settings.AWS_REGION)
+    table = dynamodb.Table(settings.SESSIONS_TABLE)
+
+    try:
+        response = table.get_item(Key={'session_id': f"oauth_state:{state}"})
+        if 'Item' not in response:
+            return None
+
+        user_id = response['Item']['user_id']
+
+        # Delete the state to prevent reuse
+        table.delete_item(Key={'session_id': f"oauth_state:{state}"})
+
+        return user_id
+    except Exception:
+        return None
 
 
 @router.get("/connect")
@@ -26,7 +66,7 @@ async def connect_dexcom(current_user: dict = Depends(get_current_user)):
     """
     # Generate a random state parameter to prevent CSRF
     state = secrets.token_urlsafe(32)
-    oauth_states[state] = current_user['user_id']
+    _store_oauth_state(state, current_user['user_id'])
 
     # Build authorization URL
     auth_params = {
@@ -56,13 +96,12 @@ async def dexcom_callback(
     Handle OAuth callback from Dexcom
     """
     # Verify state to prevent CSRF
-    if state not in oauth_states:
+    user_id = _get_and_delete_oauth_state(state)
+    if user_id is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid state parameter"
+            detail="Invalid or expired state parameter"
         )
-
-    user_id = oauth_states.pop(state)
 
     # Exchange authorization code for access token
     token_url = f"{settings.DEXCOM_API_BASE_URL}/v2/oauth2/token"
