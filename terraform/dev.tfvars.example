@@ -14,3 +14,4 @@ cognito_logout_urls = [
 dexcom_client_id = "your-dexcom-client-id"
 dexcom_client_secret = "your-dexcom-client-secret"
 dexcom_redirect_uri = "https://your-api-gateway-url/dev/v1/dexcom/callback"
+frontend_base_url = "http://localhost:3000"

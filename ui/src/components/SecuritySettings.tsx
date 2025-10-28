@@ -1,24 +1,22 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import authService from '../services/auth';
+import { useToast } from '../contexts/ToastContext';
 import { ApiError } from '../types';
 import DisplayField from './DisplayField';
 
-interface SecuritySettingsProps {
-  onToast: (message: string, type: 'success' | 'error') => void;
-}
-
-const SecuritySettings: React.FC<SecuritySettingsProps> = ({ onToast }) => {
+const SecuritySettings: React.FC = () => {
   const navigate = useNavigate();
+  const { addToast } = useToast();
 
   const handleDeactivateAccount = async () => {
     try {
       await authService.deactivateAccount();
-      onToast('Account deactivated successfully.', 'success');
+      addToast('Account deactivated successfully.', 'success');
       navigate('/login');
     } catch (err) {
       const error = err as ApiError;
-      onToast(error.message || 'Failed to deactivate account. Please try again.', 'error');
+      addToast(error.message || 'Failed to deactivate account. Please try again.', 'error');
     }
   };
 

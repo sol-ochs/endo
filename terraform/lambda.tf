@@ -103,6 +103,7 @@ resource "aws_lambda_function" "api" {
       DEXCOM_CLIENT_SECRET     = var.dexcom_client_secret
       DEXCOM_REDIRECT_URI      = var.dexcom_redirect_uri
       DEXCOM_API_BASE_URL      = var.environment == "prod" ? "https://api.dexcom.com" : "https://sandbox-api.dexcom.com"
+      FRONTEND_BASE_URL        = var.frontend_base_url
       LOG_LEVEL                = var.environment == "prod" ? "INFO" : "DEBUG"
     }
   }
@@ -110,13 +111,6 @@ resource "aws_lambda_function" "api" {
   tags = {
     Name        = "${var.project_name}-api-${var.environment}"
     Environment = var.environment
-  }
-
-  lifecycle {
-    ignore_changes = [
-      source_code_hash,
-      filename
-    ]
   }
 }
 

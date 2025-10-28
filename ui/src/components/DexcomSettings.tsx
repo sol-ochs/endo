@@ -1,49 +1,56 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { AlertCircle, CheckCircle, Loader2 } from 'lucide-react';
+import { useToast } from '../contexts/ToastContext';
 import dexcomService from '../services/dexcom';
 import { ApiError } from '../types';
 
-interface DexcomSettingsProps {
-  onToast?: (message: string, type: 'success' | 'error') => void;
-}
-
-const DexcomSettings: React.FC<DexcomSettingsProps> = ({ onToast }) => {
+const DexcomSettings: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isConnected, setIsConnected] = useState(false);
-  const [expiresAt, setExpiresAt] = useState<string | null>(null);
+  const [lastSync, setLastSync] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
+  const { addToast } = useToast();
+  const hasHandledCallback = useRef(false);
 
   const checkConnectionStatus = useCallback(async () => {
     try {
       const status = await dexcomService.getConnectionStatus();
       setIsConnected(status.connected);
-      setExpiresAt(status.expires_at || null);
+      setLastSync(status.lastSync);
     } catch (error) {
       const err = error as ApiError;
-      console.error('Failed to check Dexcom status:', err);
+      // Silently handle 404 - user has no credentials yet
+      if (err.status !== 404) {
+        console.error('Failed to check Dexcom status:', err);
+      }
     } finally {
       setIsLoading(false);
     }
   }, []);
 
+  // Handle OAuth callback - runs once on mount
   useEffect(() => {
     const dexcomParam = searchParams.get('dexcom');
 
-    if (dexcomParam === 'connected') {
+    if (dexcomParam === 'connected' && !hasHandledCallback.current) {
+      hasHandledCallback.current = true;
+
       // Clear the param from URL
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('dexcom');
       setSearchParams(newParams, { replace: true });
 
       // Show success toast
-      onToast?.('Successfully connected to Dexcom!', 'success');
+      addToast('Successfully connected to Dexcom!', 'success');
     }
+  }, [searchParams, setSearchParams, addToast]);
 
-    // Check connection status
+  // Check connection status on mount
+  useEffect(() => {
     void checkConnectionStatus();
-  }, [checkConnectionStatus, searchParams, setSearchParams, onToast]);
+  }, [checkConnectionStatus]);
 
   const handleConnect = async () => {
     setIsConnecting(true);
@@ -53,7 +60,7 @@ const DexcomSettings: React.FC<DexcomSettingsProps> = ({ onToast }) => {
       window.location.href = authUrl;
     } catch (error) {
       const err = error as ApiError;
-      onToast?.(err.message || 'Failed to connect to Dexcom', 'error');
+      addToast(err.message || 'Failed to connect to Dexcom', 'error');
       setIsConnecting(false);
     }
   };
@@ -62,15 +69,15 @@ const DexcomSettings: React.FC<DexcomSettingsProps> = ({ onToast }) => {
     try {
       await dexcomService.disconnectDexcom();
       setIsConnected(false);
-      setExpiresAt(null);
-      onToast?.('Disconnected from Dexcom', 'success');
+      setLastSync(undefined);
+      addToast('Disconnected from Dexcom', 'success');
     } catch (error) {
       const err = error as ApiError;
-      onToast?.(err.message || 'Failed to disconnect from Dexcom', 'error');
+      addToast(err.message || 'Failed to disconnect from Dexcom', 'error');
     }
   };
 
-  const formatExpiryDate = (dateString: string) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
       year: 'numeric',
@@ -80,6 +87,7 @@ const DexcomSettings: React.FC<DexcomSettingsProps> = ({ onToast }) => {
       minute: '2-digit'
     });
   };
+
 
   return (
     <div className="card">
@@ -119,9 +127,9 @@ const DexcomSettings: React.FC<DexcomSettingsProps> = ({ onToast }) => {
             <CheckCircle className="icon" style={{ color: 'var(--success)' }} />
             <div>
               <p style={{ margin: 0, fontWeight: 500, color: 'var(--success)' }}>Connected</p>
-              {expiresAt && (
+              {lastSync && (
                 <p style={{ margin: 0, fontSize: '0.875rem', color: 'var(--muted-foreground)' }}>
-                  Access expires: {formatExpiryDate(expiresAt)}
+                  Last synced: {formatDate(lastSync)}
                 </p>
               )}
             </div>

@@ -39,3 +39,9 @@ variable "dexcom_redirect_uri" {
   description = "Dexcom OAuth redirect URI"
   type        = string
 }
+
+variable "frontend_base_url" {
+  description = "Frontend base URL for OAuth redirects"
+  type        = string
+  default     = "http://localhost:3000"
+}
