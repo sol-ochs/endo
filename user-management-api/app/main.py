@@ -18,6 +18,7 @@ app = FastAPI(
     root_path=f"/{settings.ENVIRONMENT}"  # API Gateway stage prefix
 )
 
+# CORS middleware - handles preflight OPTIONS requests
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,

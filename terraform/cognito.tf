@@ -48,9 +48,20 @@ resource "aws_cognito_user_pool_client" "main" {
 
   supported_identity_providers = ["COGNITO"]
 
-  # Callback URLs
-  callback_urls = var.cognito_callback_urls
-  logout_urls   = var.cognito_logout_urls
+  # Callback URLs - include both localhost (dev) and CloudFront (deployed)
+  callback_urls = concat(
+    var.cognito_callback_urls,
+    [
+      "https://${aws_cloudfront_distribution.frontend.domain_name}/dexcom/callback",
+      "https://${aws_cloudfront_distribution.frontend.domain_name}/auth/callback"
+    ]
+  )
+  logout_urls = concat(
+    var.cognito_logout_urls,
+    [
+      "https://${aws_cloudfront_distribution.frontend.domain_name}/login"
+    ]
+  )
 
   # Token validity
   access_token_validity  = 24 # hours

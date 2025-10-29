@@ -33,13 +33,34 @@ This deploys:
 - Cognito user pool
 - DynamoDB tables
 
-## Start frontend
+## Deploy Frontend to CloudFront
 
-In another terminal:
+**Build and deploy the UI to S3/CloudFront:**
 
 ```bash
-cd ui && npm start
+./scripts/deploy-ui.sh
 ```
+
+The script will:
+- Get the API URL from Terraform
+- Build the React app with production optimizations and injected API URL
+- Upload files to S3 with proper caching headers
+- Invalidate CloudFront cache
+- Display the CloudFront URL where your app is live
+
+**Note**: The first deployment may take 10-15 minutes for CloudFront to fully distribute.
+
+## Local Development
+
+To run frontend locally:
+
+```bash
+cd ui
+export REACT_APP_API_URL=$(cd ../terraform && terraform output -raw api_url)
+npm start
+```
+
+This starts the dev server at http://localhost:3000
 
 ## Cleanup
 
