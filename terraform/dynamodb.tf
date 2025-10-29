@@ -1,8 +1,8 @@
 # DynamoDB table for users
 resource "aws_dynamodb_table" "users" {
-  name           = "${var.project_name}-users-${var.environment}"
-  billing_mode   = "PAY_PER_REQUEST"  # Free tier friendly
-  hash_key       = "user_id"
+  name         = "${var.project_name}-users-${var.environment}"
+  billing_mode = "PAY_PER_REQUEST" # Free tier friendly
+  hash_key     = "user_id"
 
   attribute {
     name = "user_id"
@@ -30,9 +30,9 @@ resource "aws_dynamodb_table" "users" {
 
 # DynamoDB table for sessions
 resource "aws_dynamodb_table" "sessions" {
-  name           = "${var.project_name}-sessions-${var.environment}"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "session_id"
+  name         = "${var.project_name}-sessions-${var.environment}"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "session_id"
 
   attribute {
     name = "session_id"
@@ -54,9 +54,9 @@ resource "aws_dynamodb_table" "sessions" {
 
 # DynamoDB table for Dexcom credentials
 resource "aws_dynamodb_table" "dexcom_credentials" {
-  name           = "${var.project_name}-dexcom-credentials-${var.environment}"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "user_id"
+  name         = "${var.project_name}-dexcom-credentials-${var.environment}"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "user_id"
 
   attribute {
     name = "user_id"

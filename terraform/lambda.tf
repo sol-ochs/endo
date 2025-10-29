@@ -80,12 +80,12 @@ resource "aws_iam_role_policy" "lambda_cognito_policy" {
 resource "aws_lambda_function" "api" {
   filename         = "${path.module}/../user-management-api/lambda-package/deployment.zip"
   function_name    = "${var.project_name}-api-${var.environment}"
-  role            = aws_iam_role.lambda_execution_role.arn
-  handler         = "lambda_function.lambda_handler"
+  role             = aws_iam_role.lambda_execution_role.arn
+  handler          = "lambda_function.lambda_handler"
   source_code_hash = fileexists("${path.module}/../user-management-api/lambda-package/deployment.zip") ? filebase64sha256("${path.module}/../user-management-api/lambda-package/deployment.zip") : null
-  runtime         = "python3.11"
-  timeout         = 30
-  memory_size     = 512
+  runtime          = "python3.11"
+  timeout          = 30
+  memory_size      = 512
 
   environment {
     variables = {
@@ -104,6 +104,7 @@ resource "aws_lambda_function" "api" {
       DEXCOM_REDIRECT_URI      = var.dexcom_redirect_uri
       DEXCOM_API_BASE_URL      = var.environment == "prod" ? "https://api.dexcom.com" : "https://sandbox-api.dexcom.com"
       FRONTEND_BASE_URL        = var.frontend_base_url
+      CLOUDFRONT_URL           = "https://${aws_cloudfront_distribution.frontend.domain_name}"
       LOG_LEVEL                = var.environment == "prod" ? "INFO" : "DEBUG"
     }
   }
@@ -131,11 +132,16 @@ resource "aws_apigatewayv2_api" "main" {
   protocol_type = "HTTP"
 
   cors_configuration {
-    allow_origins = var.environment == "prod" ? var.cognito_callback_urls : ["http://localhost:3000"]
-    allow_methods = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
-    allow_headers = ["*"]
+    allow_origins = var.environment == "prod" ? [
+      "https://${aws_cloudfront_distribution.frontend.domain_name}"
+      ] : concat(
+      ["http://localhost:3000"],
+      ["https://${aws_cloudfront_distribution.frontend.domain_name}"]
+    )
+    allow_methods     = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+    allow_headers     = ["*"]
     allow_credentials = true
-    max_age = 300
+    max_age           = 300
   }
 
   tags = {
@@ -146,9 +152,9 @@ resource "aws_apigatewayv2_api" "main" {
 
 # API Gateway Integration with Lambda
 resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id           = aws_apigatewayv2_api.main.id
-  integration_type = "AWS_PROXY"
-  integration_uri  = aws_lambda_function.api.invoke_arn
+  api_id                 = aws_apigatewayv2_api.main.id
+  integration_type       = "AWS_PROXY"
+  integration_uri        = aws_lambda_function.api.invoke_arn
   payload_format_version = "2.0"
 }
 
@@ -169,12 +175,12 @@ resource "aws_apigatewayv2_stage" "default" {
     destination_arn = aws_cloudwatch_log_group.api_gateway_logs.arn
     format = jsonencode({
       requestId      = "$context.requestId"
-      ip            = "$context.identity.sourceIp"
-      requestTime   = "$context.requestTime"
-      httpMethod    = "$context.httpMethod"
-      routeKey      = "$context.routeKey"
-      status        = "$context.status"
-      protocol      = "$context.protocol"
+      ip             = "$context.identity.sourceIp"
+      requestTime    = "$context.requestTime"
+      httpMethod     = "$context.httpMethod"
+      routeKey       = "$context.routeKey"
+      status         = "$context.status"
+      protocol       = "$context.protocol"
       responseLength = "$context.responseLength"
     })
   }
