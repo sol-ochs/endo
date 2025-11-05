@@ -1,8 +1,19 @@
-fastapi
-httpx
-pydantic[email]
-python-jose[cryptography]
-python-multipart
-mangum
-pyjwt[crypto]
-requests
+# Web framework
+fastapi==0.117.1
+mangum==0.19.0
+
+# HTTP clients
+httpx==0.28.1
+requests==2.32.5
+
+# Data validation
+pydantic==2.11.9
+pydantic_core==2.33.2
+annotated-types==0.7.0
+email-validator==2.3.0
+
+# Authentication & Security
+PyJWT[crypto]==2.10.1
+
+# File handling (for FastAPI form/multipart)
+python-multipart==0.0.20

@@ -36,10 +36,7 @@ const dexcomService = {
         headers: getAuthHeaders()
       });
 
-      return {
-        connected: response.data.connected,
-        lastSync: response.data.expires_at
-      };
+      return response.data;
     } catch (error) {
       return handleApiError(error);
     }
