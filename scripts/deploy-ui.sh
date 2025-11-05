@@ -11,7 +11,16 @@ cd "$(dirname "$0")/.."
 echo "Getting AWS resource info from Terraform..."
 cd terraform
 S3_BUCKET=$(terraform output -raw s3_bucket_name)
-CLOUDFRONT_DIST_ID=$(terraform output -raw cloudfront_distribution_id 2>/dev/null || echo "")
+
+# CloudFront distribution may not exist on first deploy
+if CLOUDFRONT_DIST_ID=$(terraform output -raw cloudfront_distribution_id 2>&1); then
+  echo "✓ Found CloudFront distribution ID"
+else
+  echo "⚠ Warning: Could not retrieve CloudFront distribution ID. Skipping cache invalidation."
+  echo "  This is expected on first deploy, but may indicate a Terraform issue on subsequent deploys."
+  CLOUDFRONT_DIST_ID=""
+fi
+
 API_URL=$(terraform output -raw api_url)
 cd ..
 
