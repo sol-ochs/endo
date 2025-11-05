@@ -8,7 +8,7 @@ import { ApiError } from '../types';
 const DexcomSettings: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isConnected, setIsConnected] = useState(false);
-  const [lastSync, setLastSync] = useState<string | undefined>(undefined);
+  const [lastSync, setLastSync] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const { addToast } = useToast();
@@ -18,7 +18,7 @@ const DexcomSettings: React.FC = () => {
     try {
       const status = await dexcomService.getConnectionStatus();
       setIsConnected(status.connected);
-      setLastSync(status.lastSync);
+      setLastSync(status.expires_at);
     } catch (error) {
       const err = error as ApiError;
       // Silently handle 404 - user has no credentials yet
@@ -69,7 +69,7 @@ const DexcomSettings: React.FC = () => {
     try {
       await dexcomService.disconnectDexcom();
       setIsConnected(false);
-      setLastSync(undefined);
+      setLastSync(null);
       addToast('Disconnected from Dexcom', 'success');
     } catch (error) {
       const err = error as ApiError;

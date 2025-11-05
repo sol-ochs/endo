@@ -1,6 +1,6 @@
 export interface DexcomStatus {
   connected: boolean;
-  expires_at?: string | null;
+  expires_at: string | null;
 }
 
 export interface User {

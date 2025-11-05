@@ -2,14 +2,24 @@
 
 A proactive type 1 diabetes assistant.
 
-The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims to fill that void with periodic "nudges," using your recent glucose data to generate timely insights and actionable recommendations between doctor visits.
+The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims to fill that gap with periodic "nudges," using your recent glucose data to generate timely insights and actionable recommendations between doctor visits.
 
 ## Architecture
 
 ### Current Components
-- **`ui/`** - React 18 + TypeScript frontend with React Router, Axios, and Lucide icons
-- **`user-management-api/`** - FastAPI backend with AWS Cognito auth and DynamoDB storage (deployed on AWS Lambda)
-- **`terraform/`** - AWS infrastructure (Lambda, API Gateway, Cognito, DynamoDB) with dev/prod environments
+- **Account Management** 
+  - **UI** (`ui/`)
+    - React + TypeScript hosted on S3 + CloudFront
+    - Cognito authentication
+  - **User Management API** (`user-management-api/`)
+    - FastAPI backend running on Lambda
+    - JWT token security
+    - Dexcom OAuth integration
+- **Infrastructure** (`terraform/`)
+  - Terraform modules: S3, CloudFront, Lambda, Cognito, API Gateway, IAM, etc.
+- **Deployment** (`scripts/`)
+  - `package-lambda.sh` - Build optimized Lambda package (8.9MB)
+  - `deploy-ui.sh` - Deploy React app to CloudFront
 
 ### Planned Components (v1)
 - **`data-ingestion/`** - Service to pull individual glucose data from Dexcom API
