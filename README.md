@@ -7,14 +7,16 @@ The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims
 ## Architecture
 
 ### Current Components
-- **Account Management** (`ui/` + `user-management-api/`)
-  - React + TypeScript frontend on CloudFront/S3
-  - FastAPI backend on Lambda
-  - Cognito authentication with JWT tokens
-  - Dexcom OAuth integration for connecting CGM accounts
+- **Account Management** 
+  - **UI** (`ui/`)
+    - React + TypeScript hosted on S3 + CloudFront
+    - Cognito authentication
+  - **User Management API** (`user-management-api/`)
+    - FastAPI backend running on Lambda
+    - JWT token security
+    - Dexcom OAuth integration
 - **Infrastructure** (`terraform/`)
-  - Lambda + API Gateway + Cognito + DynamoDB
-  - CloudFront + S3 for static hosting
+  - Terraform modules: S3, CloudFront, Lambda, Cognito, API Gateway, IAM, etc.
 - **Deployment** (`scripts/`)
   - `package-lambda.sh` - Build optimized Lambda package (8.9MB)
   - `deploy-ui.sh` - Deploy React app to CloudFront
@@ -27,13 +29,3 @@ The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims
 ## Deployment
 
 For detailed instructions, see [DEPLOYMENT.md](DEPLOYMENT.md).
-
-**Quick start:**
-```bash
-# Deploy backend infrastructure
-./scripts/package-lambda.sh
-cd terraform && terraform apply -var-file=dev.tfvars
-
-# Deploy frontend
-./scripts/deploy-ui.sh
-```
