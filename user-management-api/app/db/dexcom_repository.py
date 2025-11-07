@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 import boto3
@@ -19,7 +19,7 @@ class DexcomCredentialsRepository:
         """Create or update Dexcom credentials for a user"""
         try:
             now = datetime.now(timezone.utc)
-            expires_at = datetime.fromtimestamp(now.timestamp() + expires_in, tz=timezone.utc)
+            expires_at = now + timedelta(seconds=expires_in)
 
             self.table.put_item(
                 Item={

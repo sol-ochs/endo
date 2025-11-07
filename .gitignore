@@ -16,9 +16,7 @@ __pycache__/
 *$py.class
 *.so
 .Python
-build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -142,3 +140,4 @@ lambda-package/
 # Build outputs
 build/
 dist/
+*.zip
