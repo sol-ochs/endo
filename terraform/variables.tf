@@ -45,3 +45,9 @@ variable "frontend_base_url" {
   type        = string
   default     = "http://localhost:3000"
 }
+
+variable "dexcom_api_base_url" {
+  description = "Dexcom API base URL (sandbox or production)"
+  type        = string
+  default     = "https://sandbox-api.dexcom.com"
+}

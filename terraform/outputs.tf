@@ -88,3 +88,23 @@ output "cloudfront_distribution_id" {
   description = "CloudFront distribution ID"
   value       = aws_cloudfront_distribution.frontend.id
 }
+
+output "glucose_data_bucket_name" {
+  description = "S3 bucket name for raw glucose data"
+  value       = aws_s3_bucket.glucose_data.id
+}
+
+output "data_ingestion_queue_url" {
+  description = "SQS queue URL for data ingestion"
+  value       = aws_sqs_queue.data_ingestion.url
+}
+
+output "data_ingestion_coordinator_function_name" {
+  description = "Data ingestion coordinator Lambda function name"
+  value       = aws_lambda_function.data_ingestion_coordinator.function_name
+}
+
+output "data_ingestion_worker_function_name" {
+  description = "Data ingestion worker Lambda function name"
+  value       = aws_lambda_function.data_ingestion_worker.function_name
+}
