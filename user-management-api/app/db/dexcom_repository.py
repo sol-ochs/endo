@@ -67,7 +67,7 @@ class DexcomCredentialsRepository:
         """Update access and refresh tokens"""
         try:
             now = datetime.now(timezone.utc)
-            expires_at = datetime.fromtimestamp(now.timestamp() + expires_in, tz=timezone.utc)
+            expires_at = now + timedelta(seconds=expires_in)
 
             self.table.update_item(
                 Key={'user_id': user_id},

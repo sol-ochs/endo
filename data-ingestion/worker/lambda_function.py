@@ -143,15 +143,11 @@ def lambda_handler(event, context):
                 logger.info(f'Successfully processed data for user: {user_id}.')
             else:
                 logger.warning(f'No readings found for user: {user_id}.')
-
-            return {
-                'statusCode': 200,
-                'body': json.dumps({
-                    'user_id': user_id,
-                    'readings_count': len(readings) if readings else 0
-                })
-            }
-
         except Exception as e:
             logger.error(f'Error processing data for user: {user_id}. Error: {str(e)}')
             raise
+
+    return {
+        'statusCode': 200,
+        'body': json.dumps({'message': 'Batch processed successfully'})
+    }
