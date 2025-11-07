@@ -10,13 +10,23 @@ Full AWS deployment for dev and prod environments using Lambda (free tier eligib
 
 ## Deploy Infrastructure
 
-**1. Package Lambda function**
+**1. Package Lambda functions**
 
+Package user management API:
 ```bash
 ./scripts/package-lambda.sh
 ```
 
-This creates `user-management-api/lambda-package/deployment.zip` with your code and dependencies.
+Build data ingestion layer:
+```bash
+cd data-ingestion/layer
+./build-layer.sh
+cd ../..
+```
+
+This creates:
+- `user-management-api/lambda-package/deployment.zip` - User management API
+- `data-ingestion/layer/requests-layer.zip` - Shared dependencies layer
 
 **2. Apply Terraform**
 
@@ -28,10 +38,9 @@ terraform apply -var-file="dev.tfvars"
 ```
 
 This deploys:
-- Lambda function running the FastAPI backend
-- API Gateway
-- Cognito user pool
-- DynamoDB tables
+- **User Management**: Lambda function, API Gateway, Cognito user pool, DynamoDB tables
+- **Data Ingestion**: Coordinator Lambda, Worker Lambda, SQS queue, S3 bucket, EventBridge schedule
+- **Shared**: IAM roles, CloudWatch logs
 
 ## Deploy Frontend to CloudFront
 
