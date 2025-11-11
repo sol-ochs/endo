@@ -203,8 +203,9 @@ resource "aws_lambda_function" "data_ingestion_coordinator" {
   environment {
     variables = {
       DEXCOM_CREDENTIALS_TABLE = aws_dynamodb_table.dexcom_credentials.name
-      SQS_QUEUE_URL           = aws_sqs_queue.data_ingestion.url
-      LOG_LEVEL               = "INFO"
+      USERS_TABLE              = aws_dynamodb_table.users.name
+      SQS_QUEUE_URL            = aws_sqs_queue.data_ingestion.url
+      LOG_LEVEL                = "INFO"
     }
   }
 
