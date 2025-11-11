@@ -47,7 +47,6 @@ def lambda_handler(event, context):
     for user in active_users:
         user_id = user['user_id']
 
-        # Check if user has Dexcom credentials
         try:
             dexcom_response = dexcom_table.get_item(Key={'user_id': user_id})
             if 'Item' not in dexcom_response:
@@ -61,7 +60,6 @@ def lambda_handler(event, context):
             failed_count += 1
             continue
 
-        # Enqueue active user with Dexcom credentials
         try:
             sqs.send_message(
                 QueueUrl=SQS_QUEUE_URL,
