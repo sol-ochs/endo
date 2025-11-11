@@ -61,6 +61,11 @@ def login(request: LoginRequest, db=Depends(get_db)):
         now = datetime.now(timezone.utc).isoformat()
         db.update_last_login(user["user_id"], now)
 
+        # Reactivate user on login if they were deactivated
+        if not user.get("is_active", True):
+            db.reactivate(user["user_id"])
+            user["is_active"] = True
+
         response_data = LoginResponse(
             access_token=id_token,  # Use ID token for client
             token_type="bearer",
