@@ -143,3 +143,17 @@ class UserRepository:
         except ClientError as e:
             logger.error(f"Error deactivating user_id: {user_id}. Error: {e}")
             return False
+
+    def reactivate(self, user_id: str) -> bool:
+        """Reactivates a user by setting is_active to True."""
+        try:
+            logger.info(f"Reactivating user_id: {user_id}")
+            self._users_table.update_item(
+                Key={'user_id': user_id},
+                UpdateExpression="SET is_active = :ia",
+                ExpressionAttributeValues={':ia': True}
+            )
+            return True
+        except ClientError as e:
+            logger.error(f"Error reactivating user_id: {user_id}. Error: {e}")
+            return False
