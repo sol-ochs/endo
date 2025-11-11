@@ -61,6 +61,6 @@ def deactivate_current_user(current_user: dict = Depends(get_current_user), db=D
             detail="Failed to deactivate account"
         )
 
-    # TODO: Make sure UI deletes tokens client-side
+    # UI deletes token client-side
 
     return

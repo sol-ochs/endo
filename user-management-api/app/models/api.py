@@ -44,7 +44,6 @@ class LoginRequest(BaseModel):
     password: SecretStr
 
 class UserResponse(BaseModel):
-    # give is a possible alias of user_id (when created a userresponse from dict)
     id: str = Field(alias="user_id")
     email: EmailStr
     first_name: str
