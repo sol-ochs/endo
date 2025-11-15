@@ -1,6 +1,6 @@
 """Utility functions for glucose data processing and analysis."""
 from collections import defaultdict
-from datetime import datetime
+from decimal import Decimal
 from enum import Enum
 from typing import List, Dict, Any
 
@@ -91,13 +91,13 @@ def calculate_aggregates(readings: List[GlucoseReading], num_days: int) -> Dict[
     cgm_active_pct = min((total / expected_readings) * 100, 100) if expected_readings > 0 else 0
 
     return {
-        'avg_glucose': round(avg_glucose, 1),
-        'time_in_range_pct': round(time_in_range_pct, 1),
-        'cgm_active_pct': round(cgm_active_pct, 1),
-        'very_high_pct': round(very_high_pct, 1),
-        'high_pct': round(high_pct, 1),
-        'target_pct': round(target_pct, 1),
-        'low_pct': round(low_pct, 1),
-        'very_low_pct': round(very_low_pct, 1),
+        'avg_glucose': Decimal(str(round(avg_glucose, 1))),
+        'time_in_range_pct': Decimal(str(round(time_in_range_pct, 1))),
+        'cgm_active_pct': Decimal(str(round(cgm_active_pct, 1))),
+        'very_high_pct': Decimal(str(round(very_high_pct, 1))),
+        'high_pct': Decimal(str(round(high_pct, 1))),
+        'target_pct': Decimal(str(round(target_pct, 1))),
+        'low_pct': Decimal(str(round(low_pct, 1))),
+        'very_low_pct': Decimal(str(round(very_low_pct, 1))),
         'total_readings': total
     }
