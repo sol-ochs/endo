@@ -64,7 +64,17 @@ resource "aws_sqs_queue" "data_ingestion" {
   }
 }
 
-# Lambda Layer for Data Ingestion Dependencies
+# Lambda Layer for Shared Glucose Data Models
+resource "aws_lambda_layer_version" "shared_layer" {
+  filename            = "../shared/shared-layer.zip"
+  layer_name          = "${var.project_name}-shared-layer-${var.environment}"
+  compatible_runtimes = ["python3.11"]
+  source_code_hash    = filebase64sha256("../shared/shared-layer.zip")
+
+  description = "Shared glucose data models, adapters, and utilities"
+}
+
+# Lambda Layer for Data Ingestion Dependencies (requests library)
 resource "aws_lambda_layer_version" "data_ingestion_layer" {
   filename            = "../data-ingestion/layer/requests-layer.zip"
   layer_name          = "${var.project_name}-requests-layer-${var.environment}"
@@ -198,7 +208,10 @@ resource "aws_lambda_function" "data_ingestion_coordinator" {
   memory_size     = 256
   source_code_hash = data.archive_file.coordinator_lambda.output_base64sha256
 
-  layers = [aws_lambda_layer_version.data_ingestion_layer.arn]
+  layers = [
+    aws_lambda_layer_version.shared_layer.arn,
+    aws_lambda_layer_version.data_ingestion_layer.arn
+  ]
 
   environment {
     variables = {
@@ -233,7 +246,10 @@ resource "aws_lambda_function" "data_ingestion_worker" {
   reserved_concurrent_executions = 10
   source_code_hash              = data.archive_file.worker_lambda.output_base64sha256
 
-  layers = [aws_lambda_layer_version.data_ingestion_layer.arn]
+  layers = [
+    aws_lambda_layer_version.shared_layer.arn,
+    aws_lambda_layer_version.data_ingestion_layer.arn
+  ]
 
   environment {
     variables = {
