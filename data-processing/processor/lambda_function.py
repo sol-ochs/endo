@@ -44,7 +44,7 @@ def fetch_data_from_s3(user_id: str, days: int = 7) -> List[GlucoseReading]:
             for reading in readings:
                 try:
                     glucose_reading = GlucoseReading(
-                        timestamp_local=datetime.fromisoformat(reading['timestamp_local']),
+                        timestamp_local=datetime.fromisoformat(reading['timestamp']),
                         value=float(reading['value']),
                         unit=reading['unit']
                     )
