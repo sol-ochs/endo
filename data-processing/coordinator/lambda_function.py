@@ -8,8 +8,8 @@ import boto3
 logger = logging.getLogger()
 logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
 
-dynamodb = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION'])
-sqs = boto3.client('sqs', region_name=os.environ['AWS_REGION'])
+dynamodb = boto3.resource('dynamodb')
+sqs = boto3.client('sqs')
 
 USERS_TABLE = os.environ['USERS_TABLE']
 SQS_QUEUE_URL = os.environ['SQS_QUEUE_URL']
