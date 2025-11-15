@@ -14,8 +14,8 @@ from insights_generator import generate_insights
 logger = logging.getLogger()
 logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
 
-s3 = boto3.client('s3', region_name=os.environ['AWS_REGION'])
-dynamodb = boto3.resource('dynamodb', region_name=os.environ['AWS_REGION'])
+s3 = boto3.client('s3')
+dynamodb = boto3.resource('dynamodb')
 
 S3_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
 GLUCOSE_INSIGHTS_TABLE = os.environ['GLUCOSE_INSIGHTS_TABLE']
