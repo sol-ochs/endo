@@ -205,7 +205,7 @@ resource "aws_lambda_function" "data_processor" {
 }
 
 # SQS trigger for Processor Lambda
-resource "aws_lambda_event_source_mapping" "sqs_trigger" {
+resource "aws_lambda_event_source_mapping" "data_processing_sqs_trigger" {
   event_source_arn = aws_sqs_queue.data_processing.arn
   function_name    = aws_lambda_function.data_processor.arn
   batch_size       = 1
@@ -225,7 +225,7 @@ resource "aws_cloudwatch_event_rule" "weekly_processing" {
   }
 }
 
-resource "aws_cloudwatch_event_target" "coordinator_target" {
+resource "aws_cloudwatch_event_target" "data_processing_coordinator_target" {
   rule      = aws_cloudwatch_event_rule.weekly_processing.name
   target_id = "DataProcessingCoordinator"
   arn       = aws_lambda_function.data_processing_coordinator.arn
