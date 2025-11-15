@@ -69,3 +69,27 @@ resource "aws_dynamodb_table" "dexcom_credentials" {
     Project     = var.project_name
   }
 }
+
+# DynamoDB table for processed glucose insights
+resource "aws_dynamodb_table" "glucose_insights" {
+  name         = "${var.project_name}-glucose-insights-${var.environment}"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "user_id"
+  range_key    = "report_key"
+
+  attribute {
+    name = "user_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "report_key"
+    type = "S"
+  }
+
+  tags = {
+    Name        = "${var.project_name}-glucose-insights-${var.environment}"
+    Environment = var.environment
+    Project     = var.project_name
+  }
+}
