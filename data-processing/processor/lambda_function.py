@@ -1,8 +1,8 @@
 import json
 import logging
 import os
-from collections import defaultdict
 from datetime import datetime, timezone, timedelta, date
+from decimal import Decimal
 from typing import List, Dict, Any
 
 import boto3
@@ -88,7 +88,7 @@ def store_insights(
         'aggregates': aggregates,
         'graph_data': graph_data,
         'insights': insights,
-        'insights_version': 'template-v1',  # Used by email service
+        'insights_version': 'template-v1',
         'created_at': datetime.now(timezone.utc).isoformat(),
         'report_type': 'weekly'
     }
@@ -135,7 +135,7 @@ def process_user_data(user_id: str) -> None:
 
     aggregates = calculate_aggregates(readings, num_days)
 
-    graph_data = [{'timestamp': r.timestamp_local.isoformat(), 'value': r.value} for r in readings]
+    graph_data = [{'timestamp': r.timestamp_local.isoformat(), 'value': Decimal.from_float(r.value)} for r in readings]
 
     # Fetch previous week's data for trend comparison
     previous_aggregates = fetch_previous_week_aggregates(user_id, period_end_date)
