@@ -6,6 +6,8 @@ from datetime import datetime, timezone, timedelta
 import boto3
 import requests
 
+from adapters import DexcomAdapter
+
 logger = logging.getLogger()
 logger.setLevel(os.environ['LOG_LEVEL'])
 
@@ -21,8 +23,7 @@ DEXCOM_DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
 
 
 def is_token_expired(credentials: dict) -> bool:
-    expires_at_str = credentials['expires_at']
-    expires_at_dt = datetime.fromisoformat(expires_at_str.replace('Z', '+00:00'))
+    expires_at_dt = datetime.fromisoformat(credentials['expires_at'])
     expires_at = int(expires_at_dt.timestamp())
 
     current_time = int(datetime.now(timezone.utc).timestamp())
@@ -87,33 +88,30 @@ def fetch_glucose_readings(access_token: str) -> list[dict]:
     data = response.json()
     return data.get('records', data.get('egvs', []))
 
-def save_to_s3(user_id: str, readings: list[dict]) -> None:
-    """Save glucose readings to S3."""
+def save_to_s3(user_id: str, raw_readings: list[dict]) -> None:
+    """Save glucose readings to S3 in normalized format."""
     yesterday = (datetime.now(timezone.utc) - timedelta(days=1))
-    fetch_date = yesterday.strftime('%Y-%m-%d')
+    readings_date = yesterday.strftime('%Y-%m-%d')
+    ingested_at = datetime.now(timezone.utc).isoformat()
 
-    s3_key = f'raw/user_id={user_id}/fetch_date={fetch_date}/readings.json'
+    adapter = DexcomAdapter()
+    normalized_dataset = adapter.normalize_dataset(
+        user_id=user_id,
+        readings_date_utc=readings_date,
+        ingested_at_utc=ingested_at,
+        raw_readings=raw_readings
+    )
 
-    data = {
-        'user_id': user_id,
-        'fetch_date_utc': fetch_date,
-        'fetch_timestamp': datetime.now(timezone.utc).isoformat(),
-        'readings': readings,
-        'metadata': {
-            'total_readings': len(readings),
-            'api_version': 'v3',
-            'data_source': 'dexcom'
-        }
-    }
+    s3_key = f'normalized/user_id={user_id}/readings_date={readings_date}/readings.json'
 
     s3.put_object(
         Bucket=S3_BUCKET_NAME,
         Key=s3_key,
-        Body=json.dumps(data, indent=2),
+        Body=json.dumps(normalized_dataset.to_dict(), indent=2),
         ContentType='application/json'
     )
 
-    logger.info(f'Saved {len(readings)} readings to S3://{S3_BUCKET_NAME}/{s3_key} for user: {user_id}.')
+    logger.info(f'Saved {len(normalized_dataset.readings)} normalized readings to S3://{S3_BUCKET_NAME}/{s3_key} for user: {user_id}.')
 
 def lambda_handler(event, context):
     """Data ingestion worker: process a single user's data ingestion request from SQS."""
