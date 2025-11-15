@@ -27,7 +27,7 @@ def fetch_data_from_s3(user_id: str, days: int = 7) -> List[GlucoseReading]:
     end_date = datetime.now(timezone.utc).date()
     start_date = end_date - timedelta(days=days)
 
-    logger.info(f'Fetching data for user {user_id} from {start_date} to {end_date}.')
+    logger.info(f'Fetching data for user {user_id} from {start_date} to {end_date}...')
 
     current_date = start_date
     files_found = 0
@@ -62,7 +62,7 @@ def fetch_data_from_s3(user_id: str, days: int = 7) -> List[GlucoseReading]:
 
         current_date += timedelta(days=1)
 
-    logger.info(f'Fetched total of {len(all_readings)} readings from {files_found} files for user {user_id}.')
+    logger.info(f'Fetched total of {len(all_readings)} readings from {files_found} file(s) for user {user_id}.')
     return all_readings
 
 def store_insights(
@@ -94,7 +94,7 @@ def store_insights(
     }
 
     table.put_item(Item=item)
-    logger.info(f'Stored insights for user {user_id}, report_key: {report_key} ({days_included} days)')
+    logger.info(f'Stored insights for user {user_id}, report_key: {report_key} ({days_included} days).')
 
 def fetch_previous_week_aggregates(user_id: str, current_period_end: date) -> Dict[str, Any] | None:
     """Fetch previous week's aggregates from DynamoDB for trend comparison."""
@@ -125,7 +125,7 @@ def process_user_data(user_id: str) -> None:
     if not readings:
         raise ValueError(f'No readings found for user {user_id}. Cannot generate insights.')
 
-    logger.info(f'Processing {len(readings)} readings for user {user_id}')
+    logger.info(f'Processing {len(readings)} readings for user {user_id}...')
 
     # Get date range from readings
     timestamps = [r.timestamp_local for r in readings if isinstance(r.timestamp_local, datetime)]
@@ -160,7 +160,7 @@ def lambda_handler(event, context):
         message_body = json.loads(record['body'])
         user_id = message_body['user_id']
 
-        logger.info(f'Processing data for user: {user_id}.')
+        logger.info(f'Processing data for user: {user_id}...')
 
         try:
             process_user_data(user_id)
