@@ -6,30 +6,13 @@ The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims
 
 ## Architecture
 
-### Current Components
-- **Account Management**
-  - **UI** (`ui/`)
-    - React + TypeScript hosted on S3 + CloudFront
-    - Cognito authentication
-  - **User Management API** (`user-management-api/`)
-    - FastAPI backend running on Lambda
-    - JWT token security
-    - Dexcom OAuth integration
-- **Data Ingestion** (`data-ingestion/`)
-  - **Lambda Layer** - Shared dependencies (`requests`)
-  - **Coordinator Lambda** - Daily scheduled job to enqueue all users for data extraction
-  - **SQS Queue** - Fan-out pattern for parallel processing with retry logic (3 retries → DLQ)
-  - **Worker Lambda** - Processes individual users, fetches glucose data from Dexcom API
-  - **S3 Storage** - Raw glucose data storage, partitioned on user_id and fetch_date
-- **Infrastructure** (`terraform/`)
-  - Terraform modules: S3, CloudFront, Lambda, Cognito, API Gateway, IAM, etc.
-- **Deployment** (`scripts/`)
-  - `package-lambda.sh` - Build optimized Lambda package (8.9MB)
-  - `deploy-ui.sh` - Deploy React app to CloudFront
-
-### Planned Components (v1)
-- **`data-processing/`** - Analytics engine for generating insights and recommendations
-- **`email-service/`** - Scheduled email reports
+### Components
+- **UI** (`ui/`) - React + TypeScript SPA with Cognito authentication
+- **User Management API** (`user-management-api/`) - FastAPI backend with Dexcom OAuth
+- **Data Ingestion** (`data-ingestion/`) - Daily scheduled job to fetch and normalize glucose data from providers (Dexcom, etc.) to S3
+- **Data Processing** (`data-processing/`) - Weekly scheduled job to calculate insights and detect trends, stored in DynamoDB
+- **Email Service** (`email-service/`) - _Planned_ - Weekly email reports with insights
+- **Infrastructure** (`terraform/`) - All AWS resources (Lambda, S3, DynamoDB, Cognito, API Gateway, etc.)
 
 ## Deployment
 
