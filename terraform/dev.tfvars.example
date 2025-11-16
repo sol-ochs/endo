@@ -3,15 +3,16 @@ environment = "dev"
 project_name = "endo"
 
 cognito_callback_urls = [
-  "http://localhost:3000/dexcom/callback",
-  "http://localhost:3000/auth/callback"
+  "https://your-cloudfront-url/dexcom/callback",
+  "https://your-cloudfront-url/auth/callback"
 ]
 
 cognito_logout_urls = [
-  "http://localhost:3000/login"
+  "https://your-cloudfront-url/login"
 ]
 
 dexcom_client_id = "your-dexcom-client-id"
 dexcom_client_secret = "your-dexcom-client-secret"
 dexcom_redirect_uri = "https://your-api-gateway-url/dev/v1/dexcom/callback"
 frontend_base_url = "http://localhost:3000"
+frontend_base_url = "https://your-cloudfront-url"
