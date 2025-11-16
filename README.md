@@ -6,6 +6,8 @@ The average diabetic sees their endocrinologist only 1-2 times a year. Endo aims
 
 ## Architecture
 
+![Architecture Diagram](./architecture-diagram.mmd)
+
 ### Components
 - **UI** (`ui/`) - React + TypeScript SPA with Cognito authentication
 - **User Management API** (`user-management-api/`) - FastAPI backend with Dexcom OAuth
