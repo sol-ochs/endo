@@ -3,23 +3,23 @@ graph TB
     User([User])
     UI[UI<br/>React SPA]
     Cognito[Cognito]
-    UserAPI[User Management API<br/>Lambda]
+    UserAPI[User Management API<br/>FastAPI on Lambda]
     Dexcom[Dexcom API]
-    UsersDB[(Users Table)]
+    UsersDB[(Users Table<br/>DynamoDB)]
 
     %% Data Ingestion
     DailySchedule{{EventBridge<br/>Daily}}
     IngestionCoord[Ingestion Coordinator<br/>Lambda]
     IngestionQueue[SQS Queue]
     IngestionWorker[Ingestion Worker<br/>Lambda]
-    S3[(S3 Bucket<br/>Normalized Data)]
+    S3[(S3 Bucket<br/>Normalized Glucose Data)]
 
     %% Data Processing
-    WeeklySchedule{{EventBridge<br/>Weekly Sundays}}
+    WeeklySchedule{{EventBridge<br/>Weekly}}
     ProcessingCoord[Processing Coordinator<br/>Lambda]
     ProcessingQueue[SQS Queue]
     Processor[Processor<br/>Lambda]
-    InsightsDB[(Insights Table)]
+    InsightsDB[(Insights Table<br/>DynamoDB)]
 
     %% User Management Flow
     User --> UI
