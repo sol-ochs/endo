@@ -7,7 +7,6 @@ from typing import Dict, Any, Tuple
 
 
 def format_date(date_str: str) -> str:
-    """Format ISO date string to human-readable format."""
     try:
         date_obj = datetime.fromisoformat(date_str)
         return date_obj.strftime('%B %d, %Y')
@@ -15,16 +14,18 @@ def format_date(date_str: str) -> str:
         return date_str
 
 def format_percent(value: float | Decimal) -> str:
-    """Format decimal to percentage string."""
     if isinstance(value, Decimal):
         value = float(value)
     return f"{value:.1f}%"
 
 def format_glucose(value: float | Decimal, unit: str = 'mg/dL') -> str:
-    """Format glucose value with unit."""
     if isinstance(value, Decimal):
         value = float(value)
     return f"{value:.0f} {unit}"
+
+def calculate_gmi(avg_glucose: float) -> float:
+    # GMI formula: 3.31 + (0.02392 × average glucose in mg/dL)
+    return 3.31 + (0.02392 * avg_glucose)
 
 def render_weekly_report_email(first_name: str, insights_data: Dict[str, Any], frontend_url: str) -> Tuple[str, str, str]:
     """
@@ -38,6 +39,11 @@ def render_weekly_report_email(first_name: str, insights_data: Dict[str, Any], f
     period_start = format_date(insights_data['period_start'])
     period_end = format_date(insights_data['period_end'])
 
+    # Extract metrics (using actual DynamoDB field names)
+    avg_glucose = float(aggregates.get('avg_glucose', 0))
+    time_in_range_pct = float(aggregates.get('time_in_range_pct', 0))
+    gmi = calculate_gmi(avg_glucose) if avg_glucose > 0 else 0
+
     subject = f"Your Weekly Glucose Report - {period_end}"
 
     # Plain text email
@@ -50,9 +56,9 @@ Here's your glucose summary for {period_start} to {period_end}.
 
 KEY METRICS
 -----------
-Average Glucose: {format_glucose(aggregates.get('average_glucose', 0))}
-Time in Range: {format_percent(aggregates.get('time_in_range', 0))}
-GMI: {aggregates.get('gmi', 0):.1f}%
+Average Glucose: {format_glucose(avg_glucose)}
+Time in Range: {format_percent(time_in_range_pct)}
+GMI: {gmi:.1f}%
 
 KEY INSIGHTS
 ------------
