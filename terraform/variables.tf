@@ -51,3 +51,8 @@ variable "dexcom_api_base_url" {
   type        = string
   default     = "https://sandbox-api.dexcom.com"
 }
+
+variable "sender_email" {
+  description = "Email address for sending reports"
+  type        = string
+}

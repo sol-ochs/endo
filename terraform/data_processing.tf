@@ -192,6 +192,7 @@ resource "aws_lambda_function" "data_processor" {
     variables = {
       S3_BUCKET_NAME         = aws_s3_bucket.glucose_data.bucket
       GLUCOSE_INSIGHTS_TABLE = aws_dynamodb_table.glucose_insights.name
+      EMAIL_QUEUE_URL        = aws_sqs_queue.email_service.url
       LOG_LEVEL              = "INFO"
     }
   }

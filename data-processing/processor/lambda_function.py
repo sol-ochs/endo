@@ -15,10 +15,12 @@ logger = logging.getLogger()
 logger.setLevel(os.environ.get('LOG_LEVEL', 'INFO'))
 
 s3 = boto3.client('s3')
+sqs = boto3.client('sqs')
 dynamodb = boto3.resource('dynamodb')
 
 S3_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
 GLUCOSE_INSIGHTS_TABLE = os.environ['GLUCOSE_INSIGHTS_TABLE']
+EMAIL_QUEUE_URL = os.environ.get('EMAIL_QUEUE_URL')
 
 
 def fetch_data_from_s3(user_id: str, days: int = 7) -> List[GlucoseReading]:
@@ -73,7 +75,7 @@ def store_insights(
     aggregates: Dict[str, Any],
     graph_data: List[Dict[str, Any]],
     insights: List[str]
-) -> None:
+) -> str:
     table = dynamodb.Table(GLUCOSE_INSIGHTS_TABLE)
 
     period_end_str = period_end_date.isoformat()
@@ -95,6 +97,8 @@ def store_insights(
 
     table.put_item(Item=item)
     logger.info(f'Stored insights for user {user_id}, report_key: {report_key} ({days_included} days).')
+
+    return report_key
 
 def fetch_previous_week_aggregates(user_id: str, current_period_end: date) -> Dict[str, Any] | None:
     """Fetch previous week's aggregates from DynamoDB for trend comparison."""
@@ -119,7 +123,7 @@ def fetch_previous_week_aggregates(user_id: str, current_period_end: date) -> Di
         return None
 
 
-def process_user_data(user_id: str) -> None:
+def process_user_data(user_id: str) -> str:
     readings = fetch_data_from_s3(user_id, days=7)
 
     if not readings:
@@ -142,7 +146,7 @@ def process_user_data(user_id: str) -> None:
 
     insights = generate_insights(aggregates, period_start_date, period_end_date, previous_aggregates)
 
-    store_insights(
+    report_key = store_insights(
         user_id=user_id,
         period_start_date=period_start_date,
         period_end_date=period_end_date,
@@ -151,6 +155,19 @@ def process_user_data(user_id: str) -> None:
         graph_data=graph_data,
         insights=insights
     )
+
+    return report_key
+
+def queue_for_email(user_id: str, report_key: str) -> None:
+    message_body = {
+        'user_id': user_id,
+        'report_key': report_key
+    }
+    sqs.send_message(
+        QueueUrl=EMAIL_QUEUE_URL,
+        MessageBody=json.dumps(message_body)
+    )
+    logger.info(f'Queued email job for user {user_id}, report_key: {report_key}.')
 
 def lambda_handler(event, context):
     """Data processing worker: processes a single user's data from S3 and saves insights to DynamoDB."""
@@ -163,11 +180,16 @@ def lambda_handler(event, context):
         logger.info(f'Processing data for user: {user_id}...')
 
         try:
-            process_user_data(user_id)
+            report_key = process_user_data(user_id)
             logger.info(f'Successfully processed data for user: {user_id}.')
         except Exception as e:
             logger.error(f'Error processing user {user_id}: {str(e)}')
             raise  # Let SQS handle retry
+
+        try:
+            queue_for_email(user_id, report_key)
+        except Exception as e:
+            logger.error(f'Failed to queue email for user {user_id}: {e}')
 
     return {
         'statusCode': 200,

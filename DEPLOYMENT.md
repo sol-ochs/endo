@@ -40,7 +40,25 @@ terraform apply -var-file="dev.tfvars"
 This deploys:
 - **User Management**: Lambda function, API Gateway, Cognito user pool, DynamoDB tables
 - **Data Ingestion**: Coordinator Lambda, Worker Lambda, SQS queue, S3 bucket, EventBridge schedule
+- **Data Processing**: Processor Lambda, SQS queue, EventBridge weekly schedule
+- **Email Service**: Email sender Lambda, SQS queue, SES email identity
 - **Shared**: IAM roles, CloudWatch logs
+
+**3. Verify SES email sender**
+
+For the email service to work, verify the sender email in AWS SES:
+
+```bash
+aws ses verify-email-identity --email-address your-sender@example.com --region us-east-1
+```
+
+Check your inbox for the verification email and click the link. You can verify the status with:
+
+```bash
+aws ses get-identity-verification-attributes --identities your-sender@example.com --region us-east-1
+```
+
+**Note**: In SES sandbox mode, you must also verify recipient email addresses. For production, request SES production access.
 
 ## Deploy Frontend to CloudFront
 
